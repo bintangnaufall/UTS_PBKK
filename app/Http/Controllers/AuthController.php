@@ -29,13 +29,26 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
+    public function check(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+        ]);
+
+        return response()->json([
+            'success' =>  true
+        ]);
+    }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logout berhasil.',
+            'success' => true,
+            'message' => 'Logout berhasil.'
         ]);
     }
 }

@@ -30,7 +30,7 @@ class BooksController extends Controller
         try {
             $request->validate([
                 'title' => 'required|string|max:255',
-                'isbn' => 'required|string|max:13|min:10',
+                'isbn' => 'required|string|max:17|min:10',
                 'publisher' => 'required|string|max:255',
                 'year_published' => 'required|string|max:255',
                 'stock' => 'required|numeric',
@@ -60,7 +60,7 @@ class BooksController extends Controller
 
             $request->validate([
                 'title' => 'sometimes|string|max:255',
-                'isbn' => 'sometimes|string|max:13|min:10',
+                'isbn' => 'sometimes|string|max:17|min:10',
                 'publisher' => 'sometimes|string|max:255',
                 'year_published' => 'sometimes|string|max:255',
                 'stock' => 'sometimes|numeric',
@@ -70,7 +70,7 @@ class BooksController extends Controller
                 [
                     'title',
                     'isbn',
-                    'published',
+                    'publisher',
                     'year_published',
                     'stock'
                 ]
@@ -96,6 +96,16 @@ class BooksController extends Controller
             $book->delete();
 
             return response()->json(['message' => 'book berhasil dihapus.']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'book tidak ditemukan.'], 404);
+        }
+    }
+
+    public function bookcount(): JsonResponse
+    {
+        try {
+            $book = Books::all()->count();
+            return response()->json($book);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'book tidak ditemukan.'], 404);
         }

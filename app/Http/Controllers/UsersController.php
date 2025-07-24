@@ -30,17 +30,20 @@ class UsersController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'required|regex:/^[0-9]+$/|min:10|max:15'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'membership_date' => Carbon::now(),
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => bcrypt($request->password),
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Akun pengguna berhasil ditambahkan.',
             'data' => $user
         ], 201);
@@ -55,21 +58,21 @@ class UsersController extends Controller
             $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|unique:users,email,' . $id,
-                'password' => 'sometimes|string|min:8',
+                'password' => 'sometimes|string|min:8|confirmed',
+                'phone' => 'required|regex:/^[0-9]+$/|min:10|max:15'
             ]);
 
-            // Hanya update field yang dikirim
-            $data = $request->only(['name', 'email', 'password']);
+            $data = $request->only(['name', 'email', 'password', 'phone']);
             if (isset($data['password'])) {
                 $data['password'] = bcrypt($data['password']);
             }
-            logger('Data yg dikirim', $data);
             $user->update($data);
 
             return response()->json([
+                'success' => true,
                 'message' => $user->wasChanged()
-                    ? 'Akun pengguna berhasil diupdate.'
-                    : 'Tidak ada perubahan pada data pengguna.',
+                    ? 'User account has been successfully updated.'
+                    : 'No changes were made to the user data.',
                 'data' => $user
             ], 200);
         } catch (ModelNotFoundException $e) {
@@ -83,7 +86,19 @@ class UsersController extends Controller
             $user = User::findOrFail($id);
             $user->delete();
 
-            return response()->json(['message' => 'User berhasil dihapus.']);
+            return response()->json([
+                'message' => 'User berhasil dihapus.',
+                'success' => true
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
+    }
+    public function usercount(): JsonResponse
+    {
+        try {
+            $user = User::all()->count();
+            return response()->json($user);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'User tidak ditemukan.'], 404);
         }

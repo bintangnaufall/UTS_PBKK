@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
             'name' => 'bintang',
             'email' => 'bintanggg70@gmail.com',
             'password' => bcrypt('123123123'), // Kata sandi di-hash
+            'phone' => "08992299339944", // Kata sandi di-hash
             'membership_date' => now()->toDateString(), // Tanggal keanggotaan hari ini
             'remember_token' => Str::random(10),
         ]);
